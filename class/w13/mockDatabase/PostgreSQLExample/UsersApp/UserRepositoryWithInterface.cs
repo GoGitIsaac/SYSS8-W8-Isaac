@@ -12,7 +12,7 @@ public class UserRepositoryWithInterface : IUserRepository
     // Constructor for real database connection
     public UserRepositoryWithInterface()
     {
-        _connection = new NpgsqlConnection("Host=localhost;Port=5432;Username=testuser;Password=testpass;Database=testdb");
+        _connection = new NpgsqlConnection("Host=localhost;Port=5432;Username=postgres;Password=mysecretpassword;Database=postgres");
     }
 
     // Constructor for dependency injection (mocking)
@@ -48,17 +48,12 @@ public class UserRepositoryWithInterface : IUserRepository
     public void InsertUser(User user)
     {
         _connection.Open();
-
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO users (name) VALUES (@name) RETURNING id";
-        var param = cmd.CreateParameter();
-        param.ParameterName = "@name";
-        param.Value = user.Name;
-        cmd.Parameters.Add(param);
-
-        user.Id = (int)cmd.ExecuteScalar();
+        cmd.CommandText = "INSERT INTO users (name) VALUES ('" + user.Name + "')";
+        using var reader = cmd.ExecuteReader();
 
         _connection.Close();
+
     }
 }
 }

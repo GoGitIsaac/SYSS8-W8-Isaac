@@ -11,7 +11,7 @@ public class UnitTestUserRepoWithInterface
     public void CleanUpUsersTable()
     {
         // Cleanup the users table before each test
-        using var connection = new NpgsqlConnection("Host=localhost;Port=5432;Username=testuser;Password=testpass;Database=testdb");
+        using var connection = new NpgsqlConnection("Host=localhost;Port=5432;Username=postgres;Password=mysecretpassword;Database=postgres");
         connection.Open();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = "DELETE FROM users";
@@ -33,14 +33,14 @@ public class UnitTestUserRepoWithInterface
         // Arrange
         var userRepository = new UserRepositoryWithInterface();
         var user = new User { Name = "Jane Doe" };
+        var expectedCount = 1;
         userRepository.InsertUser(user);
 
         // Act
         var result = userRepository.GetAllUsers();
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.IsTrue(result.Count >= 0);
+        Assert.AreEqual(expectedCount, result.Count);
     }
 
     [TestMethod]
@@ -72,6 +72,8 @@ public class UnitTestUserRepoWithInterface
         mockCommand.Setup(c => c.ExecuteReader()).Returns(mockReader.Object);
         // Setup CreateCommand() to return our mock command
         mockConnection.Setup(c => c.CreateCommand()).Returns(mockCommand.Object);
+
+
         // Create repository with mocked connection for testing
         var userRepository = new UserRepositoryWithInterface(mockConnection.Object);
 
